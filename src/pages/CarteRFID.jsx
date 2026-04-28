@@ -1,5 +1,6 @@
+// Cache-bust: 2026-04-28 01:10
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Plus, Search, Trash2, Power, PowerOff, X, Check, Filter, Users } from 'lucide-react';
+import { CreditCard, Plus, Search, Trash2, Power, PowerOff, X, Check, Filter, Users as UsersIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getRFIDs, createRFID, deleteRFID, activerRFID, desactiverRFID } from '../api/rfid.api';
 import { getUsers } from '../api/users.api';
@@ -257,7 +258,7 @@ const CarteRFID = () => {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Choisir l'Abonné</label>
                 <div className="relative">
-                  <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <UsersIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                   <select 
                     required
                     className="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-4 py-4 text-sm font-bold focus:ring-2 focus:ring-blue-100 appearance-none"
