@@ -9,21 +9,23 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "1.3.0",
+    "axios": "^1.4.0",
     "backend": "file:../backend",
     "framer-motion": "6.5.0",
     "lucide-react": "0.263.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-router-dom": "6.8.0",
-    "recharts": "2.10.3",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^4.11.0",
+    "react-router-dom": "^6.30.3",
+    "recharts": "^2.8.0",
     "scheduler": "0.23.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "2.1.0",
+    "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "10.4.10",
-    "postcss": "8.4.16",
+    "postcss": "^8.5.10",
     "tailwindcss": "3.1.8",
-    "vite": "3.1.0"
+    "vite": "^4.5.0"
   }
 }
