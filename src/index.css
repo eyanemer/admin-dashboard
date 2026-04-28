@@ -2,47 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  /* Mode Clair (Basé sur Flutter) */
-  --bg-main: #f1f5f9;
-  --bg-card: #ffffff;
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --primary: #054172; /* Votre bleu Flutter */
-  --primary-hover: #074e89;
-  --border: rgba(0, 0, 0, 0.08);
-}
-
-.dark {
-  /* Mode Sombre (Premium) */
-  --bg-main: #0f172a;
-  --bg-card: #1e293b;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --primary: #38bdf8;
-  --primary-hover: #7dd3fc;
-  --border: rgba(255, 255, 255, 0.1);
-}
-
 @layer base {
   body {
-    @apply transition-colors duration-300;
-    background-color: var(--bg-main);
-    color: var(--text-main);
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+  
+  h1, h2, h3, h4 {
+    @apply font-bold tracking-tight text-slate-900;
   }
 }
 
-.glass {
-  background-color: var(--bg-card);
-  backdrop-filter: blur(10px);
-  border-right: 1px solid var(--border);
-}
+@layer components {
+  .card {
+    @apply bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden;
+  }
 
-/* Scrollbar stylisée */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 10px;
+  .btn-primary {
+    @apply bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-sm;
+  }
+
+  /* Simple scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 rounded-full hover:bg-slate-300;
+  }
 }
