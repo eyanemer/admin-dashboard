@@ -36,9 +36,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Optionnel : Déconnexion automatique si 401
-      // localStorage.removeItem('token');
-      // window.location.href = '/login';
+      // Déconnexion automatique si 401 (token invalide ou expiré)
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
