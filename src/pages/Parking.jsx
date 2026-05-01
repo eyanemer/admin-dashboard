@@ -26,50 +26,68 @@ const Parking = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const levels = [...new Set(spots.map(s => s.niveau || 'Principal'))];
+  const zones = [...new Set(spots.map(s => s.zone || 'Inconnue'))];
 
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Supervision en temps réel</h1>
-          <p className="text-sm text-slate-500 mt-1">État actuel des places de stationnement.</p>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">Supervision en Temps Réel</h1>
+          <p className="text-sm text-slate-500 mt-1 italic">Visualisation dynamique basée sur les sessions actives.</p>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={fetchParking} className="p-2 bg-white border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50">
-            <RefreshCcw size={18} className={loading ? 'animate-spin' : ''} />
+          <button onClick={fetchParking} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-blue-600 transition-all shadow-sm">
+            <RefreshCcw size={20} className={loading ? 'animate-spin' : ''} />
           </button>
-          <div className="flex items-center gap-3 bg-white border border-slate-200 px-4 py-2 rounded-lg shadow-sm">
+          <div className="flex items-center gap-3 bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
             <div className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Live</span>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Live Monitoring</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {levels.map((level) => (
-          <div key={level} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <MapPin size={16} className="text-blue-600" />
-                {level}
+        {zones.map((zone) => (
+          <div key={zone} className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden group hover:shadow-lg transition-all">
+            <div className="p-6 border-b border-slate-50 bg-slate-50/20 flex items-center justify-between">
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-3">
+                <MapPin size={18} className="text-blue-600" />
+                Zone {zone}
               </h3>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                {spots.filter(s => (s.niveau || 'Principal') === level).length} Places
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                {spots.filter(s => s.zone === zone).length} Places totales
               </span>
             </div>
-            <div className="p-6 grid grid-cols-4 sm:grid-cols-5 gap-4">
-              {spots.filter(s => (s.niveau || 'Principal') === level).map(spot => (
+            <div className="p-8 grid grid-cols-4 sm:grid-cols-5 gap-4">
+              {spots.filter(s => s.zone === zone).map(spot => (
                 <div 
                   key={spot._id} 
-                  className={`relative group p-3 rounded-lg border flex flex-col items-center gap-2 transition-all
+                  title={spot.session ? `Occupé par: ${spot.session.user?.prenom} ${spot.session.user?.nom}` : 'Place libre'}
+                  className={`relative group p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all cursor-help
                     ${spot.statut === 'occupé' 
-                      ? 'bg-blue-50 border-blue-100 text-blue-600' 
-                      : 'bg-white border-slate-200 text-slate-400'}`}
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 scale-105 z-10' 
+                      : 'bg-white border-slate-100 text-slate-300 hover:border-blue-200 hover:text-blue-400'}`}
                 >
-                  <span className="text-[10px] font-bold opacity-60">{spot.numero}</span>
-                  <ParkingCircle size={20} strokeWidth={2.5} />
-                  <div className={`h-1.5 w-1.5 rounded-full ${spot.statut === 'occupé' ? 'bg-blue-600' : 'bg-slate-200'}`}></div>
+                  <span className={`text-[10px] font-black ${spot.statut === 'occupé' ? 'text-blue-100' : 'text-slate-400'}`}>
+                    {spot.numeroPlace}
+                  </span>
+                  <ParkingCircle size={24} strokeWidth={2.5} />
+                  
+                  {spot.statut === 'occupé' && (
+                    <div className="absolute -top-1 -right-1">
+                      <span className="flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Tooltip simplifié pour mobile/hover */}
+                  {spot.session && (
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl">
+                      {spot.session.user?.nom || 'Client'}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
