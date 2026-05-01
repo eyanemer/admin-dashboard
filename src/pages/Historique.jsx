@@ -45,49 +45,67 @@ const Historique = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Action</th>
-                <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Place</th>
-                <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Statut</th>
-                <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Entrée</th>
-                <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Durée</th>
+                <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Utilisateur</th>
+                <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Place</th>
+                <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
+                <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Heure Entrée</th>
+                <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Montant</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 Array(5).fill(0).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={5} className="px-6 py-4 h-12 bg-slate-50/50"></td>
+                    <td colSpan={5} className="px-10 py-6 h-12 bg-slate-50/50"></td>
                   </tr>
                 ))
               ) : activities.length > 0 ? (
                 activities.map((act) => (
-                  <tr key={act._id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
+                  <tr key={act._id} className="hover:bg-blue-50/20 transition-colors group">
+                    <td className="px-10 py-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center text-[10px] font-black uppercase">
+                          {act.user?.nom ? act.user.nom[0] : 'U'}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{act.user?.prenom} {act.user?.nom}</p>
+                          <p className="text-[10px] text-slate-400 tracking-tight">{act.user?.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-10 py-6">
+                      <span className="text-sm font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                        {act.placeParking?.numeroPlace || 'N/A'}
+                      </span>
+                    </td>
+                    <td className="px-10 py-6">
                       <div className="flex items-center gap-2">
-                        {act.statut === 'en cours' ? (
-                          <ArrowUpCircle size={16} className="text-blue-600" />
-                        ) : (
-                          <ArrowDownCircle size={16} className="text-emerald-600" />
-                        )}
-                        <span className={`text-[10px] font-bold uppercase tracking-widest ${act.statut === 'en cours' ? 'text-blue-600' : 'text-emerald-600'}`}>
-                          {act.statut === 'en cours' ? 'entrée' : 'terminé'}
+                        <div className={`h-2 w-2 rounded-full ${
+                          act.statutSession === 'en cours' ? 'bg-blue-500 animate-pulse' : 
+                          act.statutSession === 'payée' ? 'bg-amber-500' : 'bg-slate-300'
+                        }`}></div>
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${
+                          act.statutSession === 'en cours' ? 'text-blue-600' : 
+                          act.statutSession === 'payée' ? 'text-amber-600' : 'text-slate-400'
+                        }`}>
+                          {act.statutSession}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-900">{act.placeId?.numero || 'N/A'}</td>
-                    <td className="px-6 py-4 text-xs text-slate-500 italic">{act.statut}</td>
-                    <td className="px-6 py-4 text-sm text-slate-400 font-mono">
-                      {new Date(act.dateDebut).toLocaleTimeString()}
+                    <td className="px-10 py-6 text-sm text-slate-500 font-mono">
+                      {new Date(act.heureEntree).toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-right text-xs text-slate-500">
-                      {act.dateFin ? 'Terminé' : 'En cours...'}
+                    <td className="px-10 py-6 text-right">
+                      <span className="text-sm font-black text-slate-900">
+                        {act.montantTotal ? act.montantTotal.toFixed(2) : '0.00'} <span className="text-[10px] text-slate-400">DT</span>
+                      </span>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-10 text-center text-slate-400">
-                    Aucune activité enregistrée.
+                  <td colSpan={5} className="px-10 py-20 text-center text-slate-400 italic">
+                    Aucune activité stationnement trouvée dans la base.
                   </td>
                 </tr>
               )}
