@@ -11,13 +11,17 @@ import {
   Edit3,
   Plus,
   X,
-  Check
+  Check,
+  Trash2,
+  PowerOff
 } from 'lucide-react';
 import { getTarifs, updateTarif, createTarif } from '../api/tarifs.api';
+import { getAllAbonnements, deactivateAbonnement, deleteAbonnement } from '../api/abonnements.api';
 import toast from 'react-hot-toast';
 
 const Tarifs = () => {
   const [rates, setRates] = useState([]);
+  const [subscribers, setSubscribers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('prices');
   const [editingId, setEditingId] = useState(null);
@@ -30,8 +34,11 @@ const Tarifs = () => {
     try {
       const response = await getTarifs();
       setRates(response.data);
+      
+      const subsResponse = await getAllAbonnements();
+      setSubscribers(subsResponse.data);
     } catch (error) {
-      console.error("Erreur tarifs", error);
+      console.error("Erreur chargement données", error);
       toast.error("Erreur de chargement");
     } finally {
       setLoading(false);
@@ -66,6 +73,30 @@ const Tarifs = () => {
       fetchTarifs();
     } catch (error) {
       toast.error("Erreur de création");
+    }
+  };
+
+  const handleDeactivate = async (id) => {
+    if (window.confirm("Voulez-vous vraiment désactiver cet abonnement ?")) {
+      try {
+        await deactivateAbonnement(id);
+        toast.success("Abonnement désactivé");
+        fetchTarifs();
+      } catch (error) {
+        toast.error("Erreur lors de la désactivation");
+      }
+    }
+  };
+
+  const handleDeleteAbonnement = async (id) => {
+    if (window.confirm("Voulez-vous vraiment supprimer définitivement cet abonnement ?")) {
+      try {
+        await deleteAbonnement(id);
+        toast.success("Abonnement supprimé");
+        fetchTarifs();
+      } catch (error) {
+        toast.error("Erreur lors de la suppression");
+      }
     }
   };
 
@@ -215,7 +246,7 @@ const Tarifs = () => {
               <Users size={18} className="text-blue-600" />
               Répertoire des Abonnés
             </h3>
-            <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">32 Actifs</span>
+            <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-3 py-1 rounded-full uppercase tracking-widest shadow-sm">{subscribers.length} Actifs</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -224,35 +255,69 @@ const Tarifs = () => {
                   <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Abonné</th>
                   <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Type d'offre</th>
                   <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Statut</th>
-                  <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Échéance</th>
+                  <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Échéance</th>
+                  <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {[
-                  { name: 'Ahmed Benali', type: 'Mensuel', status: 'actif', expiry: '12/05/2026' },
-                  { name: 'Sarah Mansouri', type: 'Hebdo', status: 'actif', expiry: '01/05/2026' },
-                  { name: 'Inès Dridi', type: 'Mensuel', status: 'actif', expiry: '15/06/2026' },
-                ].map((sub, i) => (
-                  <tr key={i} className="hover:bg-blue-50/20 transition-colors group">
+                {subscribers.length > 0 ? subscribers.map((sub, i) => (
+                  <tr key={sub._id || i} className="hover:bg-blue-50/20 transition-colors group">
                     <td className="px-10 py-6">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center font-black text-sm group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
-                          {sub.name[0]}
+                          {sub.user?.nom ? sub.user.nom[0] : 'U'}
                         </div>
-                        <span className="text-sm font-bold text-slate-900">{sub.name}</span>
+                        <div>
+                          <p className="text-sm font-bold text-slate-900">{sub.user?.prenom} {sub.user?.nom}</p>
+                          <p className="text-[10px] text-slate-400">{sub.user?.email}</p>
+                        </div>
                       </div>
                     </td>
                     <td className="px-10 py-6">
-                      <span className="text-[11px] font-bold text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">{sub.type}</span>
-                    </td>
-                    <td className="px-10 py-6 text-center">
-                      <span className="text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-100">
-                        {sub.status}
+                      <span className="text-[11px] font-bold text-slate-500 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+                        {sub.tarif?.type || 'N/A'}
                       </span>
                     </td>
-                    <td className="px-10 py-6 text-right font-mono text-xs text-slate-400">{sub.expiry}</td>
+                    <td className="px-10 py-6 text-center">
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full shadow-lg ${
+                        sub.statutAbonnement === 'actif' ? 'bg-emerald-500 text-white shadow-emerald-100' : 
+                        sub.statutAbonnement === 'en attente' ? 'bg-amber-500 text-white shadow-amber-100' :
+                        'bg-slate-400 text-white shadow-slate-100'
+                      }`}>
+                        {sub.statutAbonnement}
+                      </span>
+                    </td>
+                    <td className="px-10 py-6 text-center font-mono text-xs text-slate-400">
+                      {sub.dateFin ? new Date(sub.dateFin).toLocaleDateString() : 'N/A'}
+                    </td>
+                    <td className="px-10 py-6 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                        {sub.statutAbonnement !== 'expiré' && (
+                          <button 
+                            onClick={() => handleDeactivate(sub._id)}
+                            title="Désactiver"
+                            className="p-2 text-amber-500 hover:bg-amber-50 rounded-lg transition-all"
+                          >
+                            <PowerOff size={16} />
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => handleDeleteAbonnement(sub._id)}
+                          title="Supprimer"
+                          className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                ))}
+                )) : (
+                  <tr>
+                    <td colSpan="4" className="px-10 py-10 text-center text-slate-400 italic text-sm">
+                      Aucun abonné trouvé dans la base.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
