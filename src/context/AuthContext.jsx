@@ -17,12 +17,13 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          // On pourrait appeler un endpoint /auth/me pour vérifier le token
-          // Pour l'instant, on simule ou on décode si nécessaire
-          const userStr = localStorage.getItem('user');
-          if (userStr && userStr !== 'undefined') {
-            const savedUser = JSON.parse(userStr);
-            if (savedUser) setUser(savedUser);
+          // Vérifier le token avec le backend
+          const response = await api.get('/auth/me');
+          if (response.data.user) {
+            setUser(response.data.user);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+          } else {
+            logout();
           }
         } catch (error) {
           console.error("Erreur de vérification d'auth", error);
