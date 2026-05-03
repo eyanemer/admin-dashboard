@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { History, Download, Filter, Search, ArrowUpCircle, ArrowDownCircle, RefreshCcw } from 'lucide-react';
-import { getSessions } from '../api/sessions.api';
+import { History, Download, Filter, Search, ArrowUpCircle, ArrowDownCircle, RefreshCcw, Trash2 } from 'lucide-react';
+import { getSessions, deleteSession } from '../api/sessions.api';
 
 const Historique = () => {
   const [activities, setActivities] = useState([]);
@@ -15,6 +15,18 @@ const Historique = () => {
       console.error("Erreur sessions", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer cet historique ?")) {
+      try {
+        await deleteSession(id);
+        fetchSessions();
+      } catch (error) {
+        console.error("Erreur suppression", error);
+        alert("Erreur lors de la suppression");
+      }
     }
   };
 
@@ -50,6 +62,7 @@ const Historique = () => {
                 <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Statut</th>
                 <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Heure Entrée</th>
                 <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Montant</th>
+                <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -96,9 +109,23 @@ const Historique = () => {
                       {new Date(act.heureEntree).toLocaleString()}
                     </td>
                     <td className="px-10 py-6 text-right">
-                      <span className="text-sm font-black text-slate-900">
-                        {act.montantTotal ? act.montantTotal.toFixed(2) : '0.00'} <span className="text-[10px] text-slate-400">DT</span>
-                      </span>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-sm font-black text-slate-900">
+                          {act.montantTotal ? act.montantTotal.toFixed(2) : '0.00'} <span className="text-[10px] text-slate-400">DT</span>
+                        </span>
+                        {act.user?.subscriptionType && act.user.subscriptionType !== 'none' && (
+                          <span className="bg-amber-100 text-amber-700 text-[9px] font-black px-2 py-0.5 rounded-full tracking-wider w-max">ABONNÉ</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-10 py-6 text-right">
+                      <button 
+                        onClick={() => handleDelete(act._id)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Supprimer"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))
