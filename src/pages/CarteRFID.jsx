@@ -188,7 +188,7 @@ const CarteRFID = () => {
                       </span>
                     </td>
                     <td className="px-10 py-6 text-right">
-                      <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-3 transition-all">
                         <button 
                           onClick={() => handleToggleStatus(card._id, card.estActive)}
                           className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm ${

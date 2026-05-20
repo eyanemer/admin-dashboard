@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { AlertTriangle, Bell, Trash2, CheckCircle, Clock, Info, ShieldAlert, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { AlertTriangle, Bell, Trash2, CheckCircle, Clock, Info, ShieldAlert, RefreshCw, PlusCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { getAlertes, markAlerteAsRead, deleteAlerte } from '../api/alertes.api';
+import { getAlertes, markAlerteAsRead, deleteAlerte, simulateAlerte } from '../api/alertes.api';
+import { useSocket } from '../context/SocketContext';
 
 const Alertes = () => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [simulating, setSimulating] = useState(false);
+  const socket = useSocket();
 
-  const fetchAlerts = async () => {
+  const fetchAlerts = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getAlertes();
@@ -17,13 +20,40 @@ const Alertes = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAlerts();
-    const interval = setInterval(fetchAlerts, 60000); // Rafraîchir toutes les minutes
-    return () => clearInterval(interval);
-  }, []);
+    
+    // Fallback passif
+    const interval = setInterval(fetchAlerts, 60000);
+
+    if (socket) {
+      socket.on('alerte_new', (newAlert) => {
+        setAlerts(prevAlerts => [newAlert, ...prevAlerts]);
+      });
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (socket) {
+        socket.off('alerte_new');
+      }
+    };
+  }, [socket, fetchAlerts]);
+
+  const handleSimulateAlert = async () => {
+    setSimulating(true);
+    try {
+      await simulateAlerte();
+      toast.success("Simulation d'alerte déclenchée avec succès");
+    } catch (error) {
+      console.error("Erreur de simulation d'alerte", error);
+      toast.error("Impossible de simuler l'alerte");
+    } finally {
+      setSimulating(false);
+    }
+  };
 
   const handleMarkAsRead = async (id) => {
     try {
@@ -69,6 +99,14 @@ const Alertes = () => {
           <p className="text-sm text-slate-500 mt-1 italic">Surveillance des incidents et notifications système.</p>
         </div>
         <div className="flex items-center gap-3">
+          <button 
+            onClick={handleSimulateAlert} 
+            disabled={simulating}
+            className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md shadow-orange-100 hover:shadow-lg disabled:opacity-50 active:scale-95"
+          >
+            <PlusCircle size={16} />
+            <span>{simulating ? 'Simulation...' : 'Simuler une alerte'}</span>
+          </button>
           <button onClick={fetchAlerts} className="p-2 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-blue-600 transition-all">
             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
           </button>

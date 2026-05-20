@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Users, 
   ParkingCircle, 
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { getGlobalStats } from '../api/stats.api';
 import { getSessions } from '../api/sessions.api';
+import { useSocket } from '../context/SocketContext';
 
 const Dashboard = () => {
   const [statsData, setStatsData] = useState({
@@ -23,8 +24,9 @@ const Dashboard = () => {
   });
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const socket = useSocket();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [statsRes, sessionsRes] = await Promise.allSettled([
         getGlobalStats(),
@@ -45,13 +47,29 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    
+    // Fallback passif
+    const interval = setInterval(fetchData, 60000);
+
+    if (socket) {
+      socket.on('session_update', fetchData);
+      socket.on('parking_update', fetchData);
+      socket.on('stats_update', fetchData);
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (socket) {
+        socket.off('session_update', fetchData);
+        socket.off('parking_update', fetchData);
+        socket.off('stats_update', fetchData);
+      }
+    };
+  }, [socket, fetchData]);
 
   const stats = [
     { title: 'Clients Actifs', value: statsData.totalUsers || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },

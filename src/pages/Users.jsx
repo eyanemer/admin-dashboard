@@ -31,7 +31,8 @@ const Users = () => {
     email: '',
     password: '',
     telephone: '',
-    role: 'client'
+    role: 'client',
+    approved: true
   });
 
   const fetchUsers = async () => {
@@ -70,7 +71,8 @@ const Users = () => {
       email: user.email || '',
       password: '', // On ne pré-remplit pas le mot de passe pour la sécurité
       telephone: user.telephone || '',
-      role: user.role || 'client'
+      role: user.role || 'client',
+      approved: user.approved ?? (user.role === 'admin' ? false : true)
     });
     setSelectedUserId(user._id);
     setIsEditMode(true);
@@ -88,7 +90,11 @@ const Users = () => {
         await updateUser(selectedUserId, updateData);
         toast.success("Utilisateur mis à jour !");
       } else {
-        await createUser(formData);
+        const createData = {
+          ...formData,
+          approved: formData.role === 'admin' ? false : true
+        };
+        await createUser(createData);
         toast.success("Utilisateur créé avec succès !");
       }
       
@@ -104,6 +110,16 @@ const Users = () => {
     setFormData({ nom: '', prenom: '', email: '', password: '', telephone: '', role: 'client' });
     setIsEditMode(false);
     setSelectedUserId(null);
+  };
+
+  const handleApprove = async (userId) => {
+    try {
+      await updateUser(userId, { approved: true });
+      toast.success('Administrateur approuvé. Il pourra maintenant se connecter.');
+      fetchUsers();
+    } catch (error) {
+      toast.error('Impossible d’approuver cet administrateur.');
+    }
   };
 
   const filteredUsers = users.filter(user => 
@@ -191,14 +207,32 @@ const Users = () => {
                       </div>
                     </td>
                     <td className="px-10 py-6">
-                      <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${
-                        user.role === 'admin' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'
-                      }`}>
-                        {user.role}
-                      </span>
+                      <div className="flex flex-col gap-2">
+                        <span className={`inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${
+                          user.role === 'admin' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-600'
+                        }`}>
+                          {user.role}
+                        </span>
+                        {user.role === 'admin' && (
+                          <span className={`inline-flex items-center justify-center px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                            user.approved ? 'bg-emerald-600 text-white' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {user.approved ? 'Approuvé' : 'En attente'}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-10 py-6 text-right">
                       <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        {user.role === 'admin' && !user.approved && (
+                          <button
+                            onClick={() => handleApprove(user._id)}
+                            className="p-2 text-green-600 hover:text-white hover:bg-green-600 rounded-xl transition-all shadow-sm bg-white border border-slate-100"
+                            title="Approuver l'administrateur"
+                          >
+                            <Check size={16} />
+                          </button>
+                        )}
                         <button 
                           onClick={() => handleEdit(user)}
                           className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all shadow-sm bg-white border border-slate-100"

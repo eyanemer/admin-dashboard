@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import { useAuth } from './hooks/useAuth';
 
 // Layout
@@ -38,7 +39,8 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <SocketProvider>
+        <Router>
         <Toaster position="top-right" />
         <Routes>
           {/* Route publique */}
@@ -59,6 +61,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 }

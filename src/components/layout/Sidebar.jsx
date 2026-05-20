@@ -12,6 +12,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import logo from '../../assets/logo.png';
 
 const Sidebar = () => {
   const { logout } = useAuth();
@@ -29,13 +30,8 @@ const Sidebar = () => {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-slate-200 flex flex-col z-50">
-      <div className="h-16 flex items-center px-6 border-b border-slate-100">
-        <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-1.5 rounded-lg text-white">
-            <ParkingCircle size={20} strokeWidth={2.5} />
-          </div>
-          <span className="text-sm font-black text-slate-900 tracking-tighter uppercase">City Parking</span>
-        </div>
+      <div className="h-16 flex items-center justify-center px-6 border-b border-slate-100">
+        <img src={logo} alt="App logo" className="h-14 w-auto object-contain" />
       </div>
 
       <nav className="flex-1 px-3 py-6 space-y-0.5 overflow-y-auto">

@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ParkingCircle, MapPin, RefreshCcw } from 'lucide-react';
 import { getParkingStatus } from '../api/parking.api';
 import toast from 'react-hot-toast';
+import { useSocket } from '../context/SocketContext';
 
 const Parking = () => {
   const [spots, setSpots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const socket = useSocket();
 
-  const fetchParking = async () => {
+  const fetchParking = useCallback(async () => {
     setLoading(true);
     try {
       const response = await getParkingStatus();
@@ -18,13 +20,25 @@ const Parking = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchParking();
-    const interval = setInterval(fetchParking, 15000); // Rafraîchir toutes les 15s
-    return () => clearInterval(interval);
-  }, []);
+    
+    // Fallback passif
+    const interval = setInterval(fetchParking, 60000);
+
+    if (socket) {
+      socket.on('parking_update', fetchParking);
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (socket) {
+        socket.off('parking_update', fetchParking);
+      }
+    };
+  }, [socket, fetchParking]);
 
   const zones = [...new Set(spots.map(s => s.zone || 'Inconnue'))];
 
