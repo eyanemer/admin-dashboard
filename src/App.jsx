@@ -41,7 +41,14 @@ function App() {
     <AuthProvider>
       <SocketProvider>
         <Router>
-        <Toaster position="top-right" />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 16000,
+            success: { duration: 16000 },
+            error: { duration: 16000 },
+          }}
+        />
         <Routes>
           {/* Route publique */}
           <Route path="/login" element={<Login />} />

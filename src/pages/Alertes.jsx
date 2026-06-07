@@ -25,8 +25,8 @@ const Alertes = () => {
   useEffect(() => {
     fetchAlerts();
     
-    // Fallback passif
-    const interval = setInterval(fetchAlerts, 60000);
+    // Fallback passif si le socket ne marche pas
+    const interval = setInterval(fetchAlerts, 40000);
 
     if (socket) {
       socket.on('alerte_new', (newAlert) => {

@@ -17,7 +17,7 @@ const Sidebar = () => {
     { icon: <Users size={20}/>, label: 'Utilisateurs', path: '/users' },
     { icon: <CreditCard size={20}/>, label: 'Cartes RFID', path: '/rfid' },
     { icon: <Car size={20}/>, label: 'Supervision Parking', path: '/parking' },
-    { icon: <History size={20}/>, label: 'Historiques', path: '/history' },
+    { icon: <History size={20}/>, label: 'Historique des stationnements', path: '/history' },
     { icon: <BarChart3 size={20}/>, label: 'Statistiques', path: '/stats' },
     { icon: <Settings size={20}/>, label: 'Tarifs', path: '/rates' },
     { icon: <AlertCircle size={20}/>, label: 'Alertes', path: '/alerts' },

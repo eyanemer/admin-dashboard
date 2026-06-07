@@ -20,6 +20,7 @@ const Statistiques = () => {
     totalNormalUsers: 0,
     averageTime: 0,
     rotationRate: 0,
+    currentOccupancy: 0,
     subscriptionTypes: []
   });
   const [selectedPeriod, setSelectedPeriod] = useState('month');
@@ -32,8 +33,8 @@ const Statistiques = () => {
     try {
       setLoading(true);
       const [revenueRes, occupancyRes, globalRes] = await Promise.all([
-        getRevenueStats(),
-        getOccupancyStats(),
+        getRevenueStats(selectedPeriod),
+        getOccupancyStats(selectedPeriod),
         getGlobalStats()
       ]);
 
@@ -52,11 +53,8 @@ const Statistiques = () => {
           totalNormalUsers: globalRes.data.data.totalNormalUsers || 0,
           averageTime: globalRes.data.data.averageTime || '2h 15m',
           rotationRate: globalRes.data.data.rotationRate || 4.2,
-          subscriptionTypes: globalRes.data.data.subscriptionTypes || [
-            { name: 'Mensuel', value: 400 },
-            { name: 'Journalier', value: 300 },
-            { name: 'Horaire', value: 300 }
-          ]
+          currentOccupancy: globalRes.data.data.currentOccupancy || 0,
+          subscriptionTypes: globalRes.data.data.subscriptionTypes || []
         });
       }
     } catch (error) {
@@ -91,6 +89,7 @@ const Statistiques = () => {
         totalNormalUsers: 785,
         averageTime: '2h 15m',
         rotationRate: 4.2,
+        currentOccupancy: 68,
         subscriptionTypes: [
           { name: 'Mensuel', value: 400 },
           { name: 'Journalier', value: 300 },
@@ -255,7 +254,7 @@ const Statistiques = () => {
           </div>
 
           {/* Summary Cards - Main Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h4 className="text-sm font-medium text-slate-500">Revenu Total</h4>
@@ -265,6 +264,22 @@ const Statistiques = () => {
                 {globalStats.totalRevenue.toLocaleString('fr-FR')} DT
               </div>
               <p className="text-xs text-green-600 mt-2">↑ +12% ce mois</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-sm font-medium text-slate-500">Occupation Actuelle</h4>
+                <BarChart3 className="text-blue-600" size={20} />
+              </div>
+              <div className="text-3xl font-bold text-slate-900">
+                {globalStats.currentOccupancy}%
+              </div>
+              <div className="flex items-center gap-1.5 mt-2">
+                <div className={`w-2 h-2 rounded-full ${globalStats.currentOccupancy >= 80 ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`}></div>
+                <span className="text-xs text-slate-500">
+                  {globalStats.currentOccupancy >= 80 ? 'Parking presque plein' : 'Places disponibles'}
+                </span>
+              </div>
             </div>
 
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">

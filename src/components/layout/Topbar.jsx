@@ -15,6 +15,7 @@ const Topbar = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const menuRef = useRef(null);
 
   const socket = useSocket();
@@ -161,6 +162,9 @@ const Topbar = () => {
         confirmPassword: ''
       }));
 
+      // Retourner au tableau de bord (Dashboard)
+      navigate('/');
+
     } catch (error) {
       console.error('Erreur lors de la mise à jour du profil:', error);
       toast.error(error.response?.data?.message || 'Erreur lors de la mise à jour du profil');
@@ -193,8 +197,15 @@ const Topbar = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
             <input 
               type="text" 
-              placeholder="Rechercher..." 
+              placeholder="Rechercher des utilisateurs..." 
               className="bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-4 h-9 w-64 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && searchQuery.trim()) {
+                  navigate(`/users?search=${encodeURIComponent(searchQuery.trim())}`);
+                }
+              }}
             />
           </div>
 

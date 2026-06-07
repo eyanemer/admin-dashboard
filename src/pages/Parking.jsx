@@ -25,8 +25,8 @@ const Parking = () => {
   useEffect(() => {
     fetchParking();
     
-    // Fallback passif
-    const interval = setInterval(fetchParking, 60000);
+    // Actualisation passive si le Socket est coupé
+    const interval = setInterval(fetchParking, 40000);
 
     if (socket) {
       socket.on('parking_update', fetchParking);

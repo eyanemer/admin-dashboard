@@ -22,7 +22,7 @@ const Sidebar = () => {
     { name: 'Utilisateurs', path: '/users', icon: Users },
     { name: 'Cartes RFID', path: '/rfid', icon: CreditCard },
     { name: 'Supervision', path: '/parking', icon: ParkingCircle },
-    { name: 'Historique', path: '/history', icon: History },
+    { name: 'Historique des stationnements', path: '/history', icon: History },
     { name: 'Statistiques', path: '/stats', icon: BarChart3 },
     { name: 'Tarifs', path: '/rates', icon: Settings },
     { name: 'Alertes', path: '/alerts', icon: AlertTriangle },

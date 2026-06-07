@@ -15,11 +15,13 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUsers, deleteUser, createUser, updateUser } from '../api/users.api';
+import { useSearchParams } from 'react-router-dom';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
   const [showAddModal, setShowAddModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
@@ -51,6 +53,19 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    const query = searchParams.get('search');
+    if (query !== null && query !== searchTerm) {
+      setSearchTerm(query);
+    }
+  }, [searchParams]);
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setSearchParams(value ? { search: value } : {});
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
@@ -158,7 +173,7 @@ const Users = () => {
               placeholder="Rechercher par nom ou email..." 
               className="w-full bg-white border border-slate-200 rounded-2xl pl-12 pr-4 h-12 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
           </div>
         </div>
@@ -182,10 +197,10 @@ const Users = () => {
                 ))
               ) : filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
-                  <tr key={user._id} className="hover:bg-blue-50/20 transition-colors group">
+                  <tr key={user._id} className="hover:bg-blue-50/20 transition-colors">
                     <td className="px-10 py-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-sm shadow-inner group-hover:bg-blue-600 group-hover:text-white transition-all">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-sm shadow-inner transition-all">
                           {user.nom?.[0] || 'U'}
                         </div>
                         <div>
@@ -223,7 +238,7 @@ const Users = () => {
                       </div>
                     </td>
                     <td className="px-10 py-6 text-right">
-                      <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-3 transition-opacity opacity-100">
                         {user.role === 'admin' && !user.approved && (
                           <button
                             onClick={() => handleApprove(user._id)}
