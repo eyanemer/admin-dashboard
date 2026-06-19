@@ -78,18 +78,18 @@ const Parking = () => {
                   key={spot._id} 
                   title={spot.session ? `Occupé par: ${spot.session.user?.prenom} ${spot.session.user?.nom}` : 'Place libre'}
                   className={`relative group p-4 rounded-2xl border-2 flex flex-col items-center gap-2 transition-all cursor-help
-                    ${spot.statut === 'occupé' || spot.statut === 'payé'
+                    ${spot.statut === 'occupé' || spot.statut === 'occupe' || spot.statut === 'payé'
                       ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-100 scale-105 z-10' 
                       : (spot.statut === 'réservé' || spot.statut === 'reserve')
                         ? 'bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-100'
                         : 'bg-white border-slate-100 text-slate-300 hover:border-blue-200 hover:text-blue-400'}`}
                 >
-                  <span className={`text-[10px] font-black ${(spot.statut === 'occupé' || spot.statut === 'payé' || spot.statut.includes('reserv')) ? 'text-white/80' : 'text-slate-400'}`}>
+                  <span className={`text-[10px] font-black ${(spot.statut === 'occupé' || spot.statut === 'occupe' || spot.statut === 'payé' || spot.statut.includes('reserv')) ? 'text-white/80' : 'text-slate-400'}`}>
                     {spot.numeroPlace}
                   </span>
                   <ParkingCircle size={24} strokeWidth={2.5} />
                   
-                  {(spot.statut === 'occupé' || spot.statut === 'payé') && (
+                  {(spot.statut === 'occupé' || spot.statut === 'occupe' || spot.statut === 'payé') && (
                     <div className="absolute -top-1 -right-1">
                       <span className="flex h-3 w-3">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
@@ -99,7 +99,7 @@ const Parking = () => {
                   )}
 
                   {/* Tooltip simplifié pour mobile/hover */}
-                  {(spot.session || spot.statut.includes('reserv')) && (
+                  {(spot.session || spot.statut.includes('reserv') || spot.statut.includes('occup')) && (
                     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl">
                       {spot.session?.user?.nom || (spot.statut.includes('reserv') ? 'Réservé' : 'Occupé')}
                     </div>

@@ -44,9 +44,9 @@ function App() {
         <Toaster
           position="top-right"
           toastOptions={{
-            duration: 16000,
-            success: { duration: 16000 },
-            error: { duration: 16000 },
+            duration: 3000,
+            success: { duration: 3000 },
+            error: { duration: 3000 },
           }}
         />
         <Routes>

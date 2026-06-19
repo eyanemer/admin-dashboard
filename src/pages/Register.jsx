@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { register as registerApi } from '../api/auth.api';
 import logo from '../assets/logo.png';
@@ -12,6 +12,7 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const [accept, setAccept] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -23,8 +24,16 @@ const Register = () => {
 
     setIsLoading(true);
     try {
-      await registerApi({ firstName: prenom, lastName: nom, email, password });
-      toast.success('Inscription réussie, vous pouvez maintenant vous connecter.');
+      const response = await registerApi({ 
+        prenom, 
+        nom, 
+        firstName: prenom, 
+        lastName: nom, 
+        email, 
+        password, 
+        role: 'admin' 
+      });
+      toast.success(response.data?.message || 'Inscription réussie. En attente d\'approbation par un superadmin.');
       navigate('/login');
     } catch (error) {
       const message = error.response?.data?.message || 'Impossible de créer le compte.';
@@ -97,13 +106,20 @@ const Register = () => {
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-12 py-4 text-sm font-semibold text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                     placeholder="Entrez votre mot de passe"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
