@@ -101,7 +101,9 @@ const Parking = () => {
                   {/* Tooltip simplifié pour mobile/hover */}
                   {(spot.session || spot.statut.includes('reserv') || spot.statut.includes('occup')) && (
                     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[9px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-20 shadow-xl">
-                      {spot.session?.user?.nom || (spot.statut.includes('reserv') ? 'Réservé' : 'Occupé')}
+                      {spot.session?.user 
+                        ? `${spot.session.user.prenom || ''} ${spot.session.user.nom || ''}`.trim() 
+                        : (spot.statut.includes('reserv') ? 'Réservé' : 'Occupé')}
                     </div>
                   )}
                 </div>
